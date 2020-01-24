@@ -45,6 +45,8 @@ class inv_sim(thesdk):
             but verilog simulation is not. File IO is synchronized to sampling clock""")
 
     def plot(self):
+        hfont = {'fontname':'Sans'}
+        latency=[ 0 , 1, 1, 0 ]
         for k in range(len(self.invs)):
             if self.invs[k].model == 'eldo':
                 figure,axes = plt.subplots(2,1,sharex=True)
@@ -58,25 +60,20 @@ class inv_sim(thesdk):
                 axes[0].grid(True)
                 axes[1].grid(True)
             else:
-                figure=plt.figure()
-                h=plt.subplot();
-                hfont = {'fontname':'Sans'}
+                figure,axes=plt.subplots(2,1,sharex=True)
                 x = np.linspace(0,10,11).reshape(-1,1)
-                markerline, stemlines, baseline = plt.stem(x, self.invs[k].IOS.Members['Z'].Data[0:11,0], '-.')
-                plt.setp(markerline,'markerfacecolor', 'b','linewidth',2)
-                plt.setp(stemlines, 'linestyle','solid','color','b', 'linewidth', 2)
-                #plt.ylim((np.amin([self.a,self.b]), np.amax([self.a,self.b])));
-                plt.ylim(0, 1.1);
-                plt.xlim((np.amin(x), np.amax(x)));
-                #plt.xlim((np.amin(self.x), np.amax(self.x)));
-                #plt.plot(self.x,self.a,label='Blowing in the wind',linewidth=2);
-                #plt.plot(self.x,self.b,label='Blowing in the wind',linewidth=2);
-                tstr = "Inverter model %s" %(self.invs[k].model) 
-                plt.suptitle(tstr,fontsize=20);
-                plt.ylabel('Out', **hfont,fontsize=18);
-                plt.xlabel('Sample (n)', **hfont,fontsize=18);
-                h.tick_params(labelsize=14)
-                printstr="%s/inv_sim_Rs_%i_%i.eps" %(self.picpath, self.Rs, k)
+                axes[0].stem(x,self.invs[k].IOS.Members['A'].Data[0:11,0])
+                axes[0].set_ylim(0, 1.1);
+                axes[0].set_xlim((np.amin(x), np.amax(x)));
+                axes[0].set_ylabel('Input', **hfont,fontsize=18);
+                axes[0].grid(True)
+                axes[1].stem(x, self.invs[k].IOS.Members['Z'].Data[latency[k]:11+latency[k],0])
+                axes[1].set_ylim(0, 1.1);
+                axes[1].set_xlim((np.amin(x), np.amax(x)));
+                axes[1].set_ylabel('Output', **hfont,fontsize=18);
+                axes[1].set_xlabel('Sample (n)', **hfont,fontsize=18);
+                axes[1].grid(True)
+
             str = "Inverter model %s" %(self.invs[k].model) 
             plt.suptitle(str,fontsize=20);
             plt.grid(True);
