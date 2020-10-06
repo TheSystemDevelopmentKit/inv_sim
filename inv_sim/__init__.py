@@ -1,4 +1,3 @@
-#from joblib import Parallel, delayed
 import numpy as np
 import matplotlib as mpl 
 import matplotlib.pyplot as plt
@@ -26,19 +25,21 @@ class inv_sim(thesdk):
         #There can be several configurations
         self.controller=inverter_controller(self)
         self.invs=[]
-        for k in range(1,len(self.models)+1):
+        for k in range(len(self.models)):
             self.invs.append(inverter(self))
-            if k==1:
-                self.invs[k-1].IOS.Members['A'].Data=self.b
+            print(k)
+            if k==0:
+                self.invs[k].IOS.Members['A'].Data=self.b
             else:
-                self.invs[k-1].IOS.Members['A']=self.invs[k-2].IOS.Members['Z']
-            self.invs[k-1].model=self.models[k-1];
-            self.invs[k-1].IOS.Members['control_write']=self.controller.IOS.Members['control_write']
+               self.invs[k].IOS.Members['A']=self.invs[k-1].IOS.Members['Z']
+
+            self.invs[k].model=self.models[k];
+            self.invs[k].IOS.Members['control_write']=self.controller.IOS.Members['control_write']
 
     def run_simple(self):
             self.controller.start_datafeed()
             for inst in self.invs:
-                inst.init();
+                #inst.init();
                 inst.run();
             self.print_log(type='I', msg="""
             Never mind the latency. Inverter should be asynchronous, 
@@ -48,8 +49,8 @@ class inv_sim(thesdk):
         hfont = {'fontname':'Sans'}
         latency=[ 0 , 1, 1, 0 ]
         for k in range(len(self.invs)):
+            figure,axes=plt.subplots(2,1,sharex=False,sharey=False)
             if self.invs[k].model == 'eldo':
-                figure,axes = plt.subplots(2,1,sharex=True)
                 axes[0].plot(self.invs[k].IOS.Members['A_OUT'].Data[:,0],self.invs[k].IOS.Members['A_OUT'].Data[:,1],label='Input')
                 axes[1].plot(self.invs[k].IOS.Members['Z'].Data[:,0],self.invs[k].IOS.Members['Z'].Data[:,1],label='Output')
                 axes[0].set_ylabel('Input', **hfont,fontsize=18);
@@ -60,19 +61,18 @@ class inv_sim(thesdk):
                 axes[0].grid(True)
                 axes[1].grid(True)
             else:
-                figure,axes=plt.subplots(2,1,sharex=True)
                 x = np.linspace(0,10,11).reshape(-1,1)
-                axes[0].stem(x,self.invs[k].IOS.Members['A'].Data[0:11,0])
+                axes[0].stem(x,self.invs[k].IOS.Members['A'].Data[0:11,0],bottom=0)
+                axes[1].stem(x, self.invs[k].IOS.Members['Z'].Data[latency[k]:11+latency[k],0],bottom=0)
                 axes[0].set_ylim(0, 1.1);
-                axes[0].set_xlim((np.amin(x), np.amax(x)));
-                axes[0].set_ylabel('Input', **hfont,fontsize=18);
-                axes[0].grid(True)
-                axes[1].stem(x, self.invs[k].IOS.Members['Z'].Data[latency[k]:11+latency[k],0])
                 axes[1].set_ylim(0, 1.1);
+                axes[0].set_xlim((np.amin(x), np.amax(x)));
                 axes[1].set_xlim((np.amin(x), np.amax(x)));
+                axes[0].set_ylabel('Input', **hfont,fontsize=18);
                 axes[1].set_ylabel('Output', **hfont,fontsize=18);
-                axes[1].set_xlabel('Sample (n)', **hfont,fontsize=18);
+                axes[0].grid(True)
                 axes[1].grid(True)
+                axes[1].set_xlabel('Sample (n)', **hfont,fontsize=18);
 
             str = "Inverter model %s" %(self.invs[k].model) 
             plt.suptitle(str,fontsize=20);
@@ -82,6 +82,7 @@ class inv_sim(thesdk):
             figure.savefig(printstr, format='eps', dpi=300);
 
 if __name__=="__main__":
+    import matplotlib as mpl 
     import matplotlib.pyplot as plt
     from inv_sim import *
     t=inv_sim()
