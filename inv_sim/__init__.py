@@ -86,7 +86,10 @@ if __name__=="__main__":
     import matplotlib.pyplot as plt
     from inv_sim import *
     t=inv_sim()
-    t.models=[ 'py', 'sv', 'vhdl', 'eldo' ]
+    # Should convert continuous time output of eldo to sampled quantized input of spectre
+    # Therefore separate tests
+    #t.models=[ 'py', 'sv', 'vhdl', 'eldo' ]
+    t.models=[ 'py', 'sv', 'vhdl', 'spectre' ]
     t.define_simple()
     t.picpath="./"
     t.run_simple()
