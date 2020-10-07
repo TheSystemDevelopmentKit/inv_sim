@@ -50,7 +50,7 @@ class inv_sim(thesdk):
         latency=[ 0 , 1, 1, 0 ]
         for k in range(len(self.invs)):
             figure,axes=plt.subplots(2,1,sharex=False,sharey=False)
-            if self.invs[k].model == 'eldo':
+            if self.invs[k].model == 'eldo' or self.invs[k].model == 'spectre' :
                 axes[0].plot(self.invs[k].IOS.Members['A_OUT'].Data[:,0],self.invs[k].IOS.Members['A_OUT'].Data[:,1],label='Input')
                 axes[1].plot(self.invs[k].IOS.Members['Z'].Data[:,0],self.invs[k].IOS.Members['Z'].Data[:,1],label='Output')
                 axes[0].set_ylabel('Input', **hfont,fontsize=18);
