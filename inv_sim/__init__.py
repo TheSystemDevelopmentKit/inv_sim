@@ -24,17 +24,19 @@ class inv_sim(thesdk):
     def define_simple(self):
         #There can be several configurations
         self.controller=inverter_controller(self)
+        clk=np.array([0 if i%2==0 else 1 for i in range(2*len(self.b))]).reshape(-1,1)
         self.invs=[]
         for k in range(len(self.models)):
             self.invs.append(inverter(self))
-            print(k)
             if k==0:
                 self.invs[k].IOS.Members['A'].Data=self.b
             else:
                self.invs[k].IOS.Members['A']=self.invs[k-1].IOS.Members['Z']
 
-            self.invs[k].model=self.models[k];
+            self.invs[k].model=self.models[k]
             self.invs[k].IOS.Members['control_write']=self.controller.IOS.Members['control_write']
+            # Passing the same clock to all inverters (used in spice simulations)
+            self.invs[k].IOS.Members['CLK'].Data=clk
 
     def run_simple(self):
             self.controller.start_datafeed()
