@@ -54,7 +54,7 @@ class inv_sim(thesdk):
             figure,axes=plt.subplots(2,1,sharex=False,sharey=False)
             if self.invs[k].model == 'eldo' or self.invs[k].model == 'spectre' :
                 axes[0].plot(self.invs[k].IOS.Members['A_OUT'].Data[:,0],self.invs[k].IOS.Members['A_OUT'].Data[:,1],label='Input')
-                axes[1].plot(self.invs[k].IOS.Members['Z'].Data[:,0],self.invs[k].IOS.Members['Z'].Data[:,1],label='Output')
+                axes[1].plot(self.invs[k].IOS.Members['Z_ANA'].Data[:,0],self.invs[k].IOS.Members['Z_ANA'].Data[:,1],label='Output')
                 axes[0].set_ylabel('Input', **hfont,fontsize=18);
                 axes[1].set_ylabel('Output', **hfont,fontsize=18);
                 axes[1].set_xlabel('Time (s)', **hfont,fontsize=18);
@@ -91,7 +91,7 @@ if __name__=="__main__":
     # Should convert continuous time output of eldo to sampled quantized input of spectre
     # Therefore separate tests
     #t.models=[ 'py', 'sv', 'vhdl', 'eldo' ]
-    t.models=[ 'py', 'sv', 'vhdl', 'spectre' ]
+    t.models=[ 'py', 'sv', 'vhdl', 'spectre', 'eldo' ]
     t.define_simple()
     t.picpath="./"
     t.run_simple()
